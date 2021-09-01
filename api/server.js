@@ -1,15 +1,9 @@
 const express = require('express');
+const { logger } = require('./middleware/middleware')
 
 const server = express();
 
 server.use(express.json())
-
-function logger(req, res, next) {
-  console.log(`Request Method: ${req.method}`)
-  console.log(`Request URL: ${req.url}`)
-  console.log(`Timestamp: ${Date.now()}`)
-  next()
-}
 
 server.use(logger)
 

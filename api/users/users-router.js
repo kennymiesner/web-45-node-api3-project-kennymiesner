@@ -1,6 +1,6 @@
 const express = require('express');
-const Users = require('./users-model')
-const Posts = require('../posts/posts-model')
+const User = require('./users-model')
+const Post = require('../posts/posts-model')
 const { 
   validateUserId,
   validateUser,
@@ -10,22 +10,23 @@ const {
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-  Users.get(req.query)
+  User.get(req.query)
     .then(users => {
-      res.status(200).json(users)
+      res.json(users)
     })
     .catch(next)
 });
 
 router.get('/:id', validateUserId, (req, res) => {
-  // RETURN THE USER OBJECT
-  // this needs a middleware to verify user id
   res.json(req.user)
 });
 
-router.post('/', (req, res) => {
-  // RETURN THE NEWLY CREATED USER OBJECT
-  // this needs a middleware to check that the request body is valid
+router.post('/', validateUser, (req, res, next) => {
+  User.insert({ name: req.name })
+    .then(newUser => {
+      res.status(201).json(newUser)
+    })
+    .catch(next)
 });
 
 router.put('/:id', validateUserId, (req, res) => {
@@ -49,5 +50,13 @@ router.post('/:id/posts', validateUserId, (req, res) => {
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
 });
+
+router.use((err, req, res, next) => { // eslint-disable-line
+  res.status(err.status || 500).json({
+    customMessage: 'posts router error',
+    message: err.message,
+    stack: err.stack,
+  })
+})
 
 module.exports = router

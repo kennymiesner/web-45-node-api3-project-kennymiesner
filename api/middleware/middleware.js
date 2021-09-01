@@ -1,4 +1,4 @@
-const Users = require('../users/users-model')
+const User = require('../users/users-model')
 
 function logger(req, res, next) {
   console.log(`Request Method: ${req.method}`)
@@ -9,7 +9,7 @@ function logger(req, res, next) {
 
 async function validateUserId(req, res, next) {
   try {
-    const user = await Users.getById(req.params.id)
+    const user = await User.getById(req.params.id)
     if (!user) {
       res.status(404).json({
         message: 'user not found'
@@ -26,32 +26,25 @@ async function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  if (
-    !req.body.name ||
-    typeof req.body.name !== 'string' ||
-    !req.body.name.trim() ||
-    req.body.name.length < 3
-  ) {
-    next({
-      status: 400,
+  const { name } = req.body
+  if (!name || !name.trim()) {
+    res.status(400).json({
       message: 'missing required name field'
     })
   } else {
+    req.name = name.trim()
     next()
   }
 }
 
 function validatePost(req, res, next) {
-  if (
-    !req.body.text ||
-    typeof req.body.text !== 'string' ||
-    req.body.text.length < 0
-  ) {
-    next({
-      status: 400,
+  const { text } = req.body
+  if (!text || !text.trim()) {
+    req.status(400).json({
       message: 'missing required text field'
     })
   } else {
+    req.text = text.trim()
     next()
   }
 }

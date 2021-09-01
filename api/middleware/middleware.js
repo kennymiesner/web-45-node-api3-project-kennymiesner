@@ -10,27 +10,41 @@ function logger(req, res, next) {
 
 function validateUserId(req, res, next) {
   const { id } = req.params
-  Users.findById(id)
-    .then(possibleUser => {
-      if (possibleUser) {
-        req.user = possibleUser
+  Users.getById(id)
+    .then(user => {
+      if (user) {
+        req.user = user
         next()
       } else {
-        next({ message: 'user not found', status: 404 })
+        next({
+          status: 404,
+          message: 'user not found' 
+        })
       }
     })
     .catch(next)
 }
 
 function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+  if (
+    !req.body.name ||
+    typeof req.body.name !== 'string' ||
+    !req.body.name.trim() ||
+    req.body.name.length < 3
+  ) {
+    next({
+      status: 400,
+      message: 'missing required name field'
+    })
+  } else {
+    next()
+  }
 }
 
 function validatePost(req, res, next) {
   // DO YOUR MAGIC
 }
 
-// do not forget to expose these functions to other modules
 module.exports = {
   logger,
   validateUserId,
